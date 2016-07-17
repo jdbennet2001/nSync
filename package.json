@@ -1,0 +1,20 @@
+{
+  "name": "nSync",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cp": "^0.2.0",
+    "fs-extra": "^0.30.0",
+    "promise": "^7.1.1",
+    "rmdir-sync": "^1.0.1",
+    "string": "^3.3.1",
+    "timediff": "^1.1.1",
+    "walkdir": "0.0.11"
+  }
+}
