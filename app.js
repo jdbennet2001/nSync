@@ -1,64 +1,50 @@
-var walk = require('walkdir');
-var fs = require('fs');
-var fse = require('fs-extra');
-var S = require('string');
-var path = require('path');
-var timediff = require('timediff');
-var cp = require('cp');
-var Promise = require('promise');
+var walk  = require('walkdir');
+var fs    = require('fs');
+var fse   = require('fs-extra');
+var S     = require('string');
+var path  = require('path');
+let jf    = require('jsonfile');
 
 var source_dir = '/Volumes/Public/webbox';
-var target_dir = '/Volumes/VIDEO/comics';
+var target_dir = '/Volumes/MainExt/webbox';
 
-
-var source_files = [];
-var target_files = [];
-
-var start = new Date();
 
 contents(source_dir).then(function(files){
-    source_files = files;
-    return contents(target_dir);
-}).then(function(files){
 
-    target_files = files;
+    console.log( 'Complete: ' + files.length + ' files found.');
 
-    var to_copy = diff(source_files, target_files);
-    var to_delete = diff(target_files, source_files);
+    jf.writeFileSync('source_list.json', files);
 
-    to_copy.forEach(function(file, index, array){
-        var source = path.join( source_dir, file);
-        console.log( 'Copying: ' + source + '(' + index + '/' + array.length + ')' );
+    console.log( '.. archived.');
+
+    let to_copy = files.filter(function(file){
+        let dest_file = path.join(target_dir, file);
+        let dest_found = fs.existsSync(dest_file);
+        console.log( file + ' exists --> ' + dest_found);
+        return !dest_found;
     });
 
-    to_delete.forEach(function(file, index, array){
-        var target = path.join(target_dir, file);
-        cosole.log( 'Deleting: ' + target + '(' + index + '/' + array.length + ')' );
-    });
+    to_copy.forEach(function(file){
+        let source = path.join(source_dir, file);
+        let target = path.join(target_dir, file);
+        console.log( '(cp) ' + source + ' --> ' + target );
+        // fse.mkdirsSync(path.dirname(target));
+        // fse.copySync(source_dir, target_dir, { preserveTimestamps: true })
+    })
+
+    console.log( 'Done..' );
+
+    process.exit(0);
 
 });
 
-
-
-
-/*
- Find files in list 1, but not in list 2;
- */
-function diff( list_1, list_2 ){
-  var list = list_1.filter(function(file){
-      var exists = list_2.some(function(item){
-        return item == file;
-      });
-  });
-  return list;
-}
 
 /*
  Return all the files in a given directory (and sub directory)
  */
 function contents(directory) {
 
-  var promise = new Promise(function(require, reject) {
+  var promise = new Promise(function(resolve, reject) {
 
     var files = [];
 

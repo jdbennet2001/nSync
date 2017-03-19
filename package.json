@@ -11,6 +11,7 @@
   "dependencies": {
     "cp": "^0.2.0",
     "fs-extra": "^0.30.0",
+    "jsonfile": "^2.4.0",
     "promise": "^7.1.1",
     "rmdir-sync": "^1.0.1",
     "string": "^3.3.1",
