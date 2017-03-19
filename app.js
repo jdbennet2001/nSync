@@ -1,3 +1,5 @@
+'use strict';
+
 var walk  = require('walkdir');
 var fs    = require('fs');
 var fse   = require('fs-extra');
@@ -9,7 +11,7 @@ var source_dir = '/Volumes/Public/webbox';
 var target_dir = '/Volumes/MainExt/webbox';
 
 
-contents(source_dir).then(function(files){
+cached(source_dir).then(function(files){
 
     console.log( 'Complete: ' + files.length + ' files found.');
 
@@ -24,12 +26,18 @@ contents(source_dir).then(function(files){
         return !dest_found;
     });
 
-    to_copy.forEach(function(file){
+    to_copy = to_copy.filter(function(file){
+      return (S(file).contains('cbz') || S(file).contains('cbr') );
+    })
+
+    debugger;
+
+    to_copy.forEach(function(file, index, array){
         let source = path.join(source_dir, file);
         let target = path.join(target_dir, file);
-        console.log( '(cp) ' + source + ' --> ' + target );
-        // fse.mkdirsSync(path.dirname(target));
-        // fse.copySync(source_dir, target_dir, { preserveTimestamps: true })
+        console.log( '(cp: ' + index + '/' + array.length + ') ' + source + ' --> ' + target );
+        fse.mkdirsSync(path.dirname(target));
+        fse.copySync(source, target, { preserveTimestamps: true })
     })
 
     console.log( 'Done..' );
@@ -38,6 +46,16 @@ contents(source_dir).then(function(files){
 
 });
 
+function cached(directory){
+
+  return new Promise(function(resolve, reject) {
+
+    jf.readFile('source_list.json', function(err, obj) {
+        !!err ? reject(err) : resolve(obj);
+    });
+
+  });
+}
 
 /*
  Return all the files in a given directory (and sub directory)
